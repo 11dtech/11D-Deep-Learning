@@ -36,16 +36,11 @@ net:add(V11)
 net:add(V12)
 net:add(V13)
 
+--Load Trained Network
+net = torch.load("gitTorch/Deep02/Run1/trained.net")
+
 print('Network Structure: \n' .. net:__tostring());
 
---[[Load Data
-if (not paths.filep("~/gitTorch/Dataset/cifar10torchsmall.zip")) then
-	os.execute('wget --directory-prefix="gitTorch/Dataset" -c https://s3.amazonaws.com/torch7/data/cifar10torchsmall.zip')
-	os.execute('unzip ~/gitTorch/Dataset/cifar10torchsmall.zip -d ~/gitTorch/Dataset')
-end
-
-trainset = torch.load('gitTorch/Dataset/cifar10-train.t7')
-testset = torch.load('gitTorch/Dataset/cifar10-test.t7')	]]
 classes = {'airplane', 'automobile', 'bird', 'cat', 'deer',
 			'dog', 'frog', 'horse', 'ship', 'truck'}
 
@@ -72,13 +67,6 @@ testset = {
 batch = torch.load('gitTorch/Dataset/cifar-10-batches-t7/test_batch.t7', 'ascii')
 	testset.data[{ {1, 10000} }]=batch.data:t()
 	testset.label[{ {1, 10000} }]=batch.labels + 1
-
---[[Index Data!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-setmetatable(trainset,
-	{__index = function(t, i)
-				  		return {t.data[i], t.label[i]}
-				  end}
-)]]
 
 trainset.data = trainset.data:double()	--convert data from a ByteTensor to a DoubleTensor
 
@@ -109,9 +97,15 @@ end
 criterion = nn.ClassNLLCriterion()	-- a negative log-likelihood criterion for multi-class classification
 
 --[[Train the Network]]
-optim_params = { learningRate = 0.001, momentum = 0.5, coefL1=0, coefL2=0.001, maxIteration=10}
+optim_params = { learningRate = 0.001, momentum = 0.5, coefL1=0, coefL2=0.001, maxIteration=100}
 -- retrieve parameters and gradients
 parameters,gradParameters = net:getParameters()
+
+
+print('Network size: \n')
+print(#parameters)
+--[[62006]]
+
 -- this matrix records the current confusion across classes
 confusion = optim.ConfusionMatrix(classes)
 -- log results to files
