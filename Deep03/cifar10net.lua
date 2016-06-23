@@ -1,6 +1,4 @@
 require 'nn'
-
-require 'nn'
 require 'dp'
 require 'torch'
 require 'paths'
